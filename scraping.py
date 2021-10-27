@@ -97,6 +97,44 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap
     return df.to_html(classes="table table-striped")
 
+def mars_hemispheres(browser):
+
+    #Visit hemisphere website
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    #Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    html = browser.html
+    hemi_soup = soup(html, 'html.parser')
+
+    # Retrieving product items that contain the links to full res image URL's and titles
+    product_elems = hemi_soup.findAll('a', class_ = 'product-item')[:-1:2]
+    #this is a list of the containers that hold each of the 4 links we will visit to get
+    #full size image URL and title
+    #note that the slice of element list uses a step of 2, this is because there are 8 instances of
+    #the product item classes, each of the 4 we want being repeated one time
+    
+    #loop through each element in product elem list 
+    for elem in product_elems:
+
+        #visit each link using the href tag(link to each hemisphere article)
+        browser.visit(url+elem.get('href'))
+
+        #save and soup the html
+        html = browser.html
+        hemi_soup = soup(html, 'html.parser')
+
+        #methods to retrieve each title and image link by tags
+        title = hemi_soup.find('h2').text
+        rel_image_link = hemi_soup.findAll('a', target = '_blank')[2].get('href')
+
+        #append dictionary of title and link to image url list
+        hemisphere_image_urls.append({'img_url': url+rel_image_link, 'title': title})
+
+
+
 if __name__ == "__main__":
 
     # If running as script, print scraped data
